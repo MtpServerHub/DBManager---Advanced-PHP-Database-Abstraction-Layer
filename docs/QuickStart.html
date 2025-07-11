@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBManager Quick Start</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+        .note {
+            background-color: #e7f5ff;
+            color: black;
+            border-left: 4px solid #4dabf7;
+            padding: 12px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager Quick Start Guide</h1>
+
+<div class="note">
+    <strong>Requirements:</strong>
+    <ul>
+        <li>PHP 8.2+</li>
+        <li>PDO extension</li>
+        <li>MySQL/MariaDB database</li>
+    </ul>
+</div>
+
+<h2>1. Installation</h2>
+
+// manually include
+<pre><code> require_once 'path/to/DBManager/autoload.php';</code></pre>
+
+<h2>2. Basic Setup</h2>
+
+<h3>Initialize DBManager</h3>
+<pre><code>use DBManager\src\DBManager;
+
+// Initialize the DBManager
+DBManager::prepare();</code></pre>
+
+<h3>Configure Database Connection</h3>
+<pre><code>// Define a database connection
+DBManager::define(
+    'localhost',      // Database host
+    'my_app_db',     // Connection ID
+    'my_database',   // Database name
+    'db_user',       // Username
+    'secure_pass',   // Password
+    'utf8mb4'        // Charset
+);</code></pre>
+
+<h3>Establish Connection</h3>
+<pre><code>// Connect to the database
+$connection = DBManager::connect('my_app_db', true); // Returns PDO object if true
+
+// Or store connection internally
+$connected = DBManager::connect('my_app_db'); // Returns boolean</code></pre>
+
+<h2>3. Basic Usage</h2>
+
+<h3>Create a Query Operation</h3>
+<pre><code>// Register a query
+DBManager::query('get_users', 'SELECT * FROM users WHERE status = :status');
+
+// Create a new operation
+$operationId = 1;
+DBManager::newOperation('my_app_db', $operationId, false, 'get_users');</code></pre>
+
+<h3>Bind Parameters</h3>
+<pre><code>// Bind a value to the parameter
+DBManager::bindValue($operationId, ':status', 'active');</code></pre>
+
+<h3>Execute and Fetch Results</h3>
+<pre><code>// Execute the query
+if (DBManager::execute($operationId)) {
+    // Fetch all results as associative array
+    $users = DBManager::fetchAll($operationId);
+
+    // Or fetch single row
+    $user = DBManager::fetch($operationId);
+}</code></pre>
+
+<h2>4. Transaction Example</h2>
+<pre><code>DBManager::beingTransaction('my_app_db');
+
+try {
+    $op1 = 101;
+    DBManager::newOperation('my_app_db', $op1, false, 'update_balance');
+    DBManager::bindValue($op1, ':user_id', 123);
+    DBManager::bindValue($op1, ':amount', 50);
+
+    $op2 = 102;
+    DBManager::newOperation('my_app_db', $op2, false, 'log_transaction');
+    DBManager::bindValue($op2, ':user_id', 123);
+    DBManager::bindValue($op2, ':amount', 50);
+
+    if (DBManager::execute($op1) && DBManager::execute($op2)) {
+        DBManager::commit('my_app_db');
+        echo "Transaction completed successfully!";
+    } else {
+        DBManager::rollBack('my_app_db');
+        echo "Transaction failed!";
+    }
+} catch (Exception $e) {
+    DBManager::rollBack('my_app_db');
+    echo "Error: " . $e->getMessage();
+}</code></pre>
+
+<h2>5. Common Methods</h2>
+
+<h3>Query Building</h3>
+<pre><code>// Using the QueryBuilder
+$query = DBManager::table('users')
+           ->select(['id', 'name', 'email'])
+           ->where('status', '=', 'active')
+           ->orderBy('name', 'ASC')
+           ->limit(10)
+           ->toSql();</code></pre>
+
+<h3>Direct Query Execution</h3>
+<pre><code>// For simple queries
+$result = DBManager::queryDirect('my_app_db', 'SELECT COUNT(*) FROM users');</code></pre>
+
+<h3>Error Handling</h3>
+<pre><code>// Check logs
+$logs = DBManager::print(); // Returns JSON formatted logs</code></pre>
+
+<div class="note">
+    <strong>Tip:</strong> Always use parameter binding (<code>bindValue</code> or <code>bindParameter</code>) to prevent SQL injection.
+</div>
+
+</body>
+</html>

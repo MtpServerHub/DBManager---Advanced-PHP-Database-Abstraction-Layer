@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | Query Method Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .method-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        .note {
+            background-color: #e7f5ff;
+            padding: 1rem;
+            border-left: 4px solid #4dabf7;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background-color: #fff3bf;
+            padding: 1rem;
+            border-left: 4px solid #ffd43b;
+            margin: 1rem 0;
+        }
+
+        .usage-example {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-left: 4px solid #adb5bd;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager Query Method</h1>
+<p>The <code>query</code> method registers SQL queries for later use in database operations.</p>
+
+<div class="method-section">
+    <h2>Method Syntax</h2>
+    <pre><code>DBManager::query(
+    queryID: string,
+    query: string
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$queryID</i> - Unique identifier for the query</li>
+        <li><b>string</b> <i>$query</i> - The SQL query string</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True on success, false on failure</p>
+</div>
+
+<h2>Key Features</h2>
+<ul>
+    <li>Stores SQL queries for reuse throughout your application</li>
+    <li>Supports all SQL statement types (SELECT, INSERT, UPDATE, DELETE, etc.)</li>
+    <li>Works with named parameters (e.g., <code>:id</code>, <code>:username</code>)</li>
+    <li>Queries can be referenced by ID in other DBManager methods</li>
+</ul>
+
+<h2>Basic Usage</h2>
+<div class="usage-example">
+    <h3>Registering a Simple Query:</h3>
+    <pre><code>// Register a SELECT query
+DBManager::query(
+    'get_user_by_id',
+    'SELECT * FROM users WHERE id = :user_id'
+);
+
+// Register an INSERT query
+DBManager::query(
+    'insert_user',
+    'INSERT INTO users (username, email) VALUES (:username, :email)'
+);</code></pre>
+</div>
+
+<h2>Complete Workflow Example</h2>
+<div class="usage-example">
+    <pre><code>// 1. Define database connection
+DBManager::define(
+    'localhost',
+    'main_db',
+    'my_application',
+    'db_user',
+    'secure_password'
+);
+
+// 2. Connect to database
+DBManager::connect('main_db');
+
+// 3. Register queries
+DBManager::query(
+    'get_product',
+    'SELECT * FROM products WHERE id = :product_id AND status = :status'
+);
+
+DBManager::query(
+    'update_price',
+    'UPDATE products SET price = :new_price WHERE id = :product_id'
+);
+
+// 4. Create operation
+DBManager::newOperation('main_db', 101, false, 'get_product');
+
+// 5. Bind parameters
+DBManager::bindValue(101, ':product_id', 42);
+DBManager::bindValue(101, ':status', 'active');
+
+// 6. Execute and fetch results
+if (DBManager::execute(101)) {
+    $product = DBManager::fetch(101);
+}</code></pre>
+</div>
+
+<div class="note">
+    <h3>Query Storage</h3>
+    <p>Registered queries are stored internally in DBManager and can be:</p>
+    <ul>
+        <li>Reused across multiple operations</li>
+        <li>Referenced by their queryID in <code>newOperation()</code></li>
+        <li>Used with different parameter bindings each time</li>
+    </ul>
+</div>
+
+<div class="warning">
+    <h3>Security Considerations</h3>
+    <ul>
+        <li>Always use parameter binding (never concatenate values directly into queries)</li>
+        <li>Validate all user input before using it in queries</li>
+        <li>Consider using the <code>escape()</code> method for dynamic table/column names</li>
+        <li>Query IDs should be meaningful but not expose sensitive information</li>
+    </ul>
+</div>
+
+<h2>Best Practices</h2>
+<ul>
+    <li><b>Naming Convention:</b> Use consistent, descriptive query IDs (e.g., 'get_user_by_email')</li>
+    <li><b>Organization:</b> Group related queries together in your code</li>
+    <li><b>Reusability:</b> Design queries to be flexible with parameter binding</li>
+    <li><b>Maintenance:</b> Document complex queries with comments in the SQL</li>
+</ul>
+
+<h2>Error Handling</h2>
+<ul>
+    <li>Returns <code>false</code> if:
+        <ul>
+            <li>The queryID is already registered</li>
+            <li>The SQL query is empty</li>
+        </ul>
+    </li>
+    <li>Logs registration events through DBManager's monitoring system</li>
+    <li>Does not validate SQL syntax at registration time (validation occurs during preparation)</li>
+</ul>
+
+<h2>Advanced Usage</h2>
+<div class="usage-example">
+    <h3>Using Complex Queries:</h3>
+    <pre><code>// Register a query with joins and subqueries
+DBManager::query(
+    'get_user_with_orders',
+    'SELECT u.*,
+            (SELECT COUNT(*) FROM orders WHERE user_id = u.id) as order_count,
+            (SELECT SUM(total) FROM orders WHERE user_id = u.id) as total_spent
+     FROM users u
+     WHERE u.id = :user_id'
+);
+
+// Register a query with transaction control
+DBManager::query(
+    'transfer_funds',
+    'UPDATE accounts SET balance = balance - :amount WHERE id = :from_account;
+     UPDATE accounts SET balance = balance + :amount WHERE id = :to_account;'
+);</code></pre>
+</div>
+
+<h2>Limitations</h2>
+<ul>
+    <li>Query IDs must be unique across the application</li>
+    <li>The method doesn't support direct execution - use with <code>newOperation()</code> and <code>execute()</code></li>
+    <li>Database-specific SQL features may not be portable across different database systems</li>
+</ul>
+</body>
+</html>

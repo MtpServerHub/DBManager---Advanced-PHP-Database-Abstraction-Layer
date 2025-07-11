@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | How to connect to databases</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<h2>How to connect to databases</h2>
+<p>The <code>connect</code> method in DBManager establishes a PDO connection to a predefined database configuration.</p>
+
+<h1>Method Syntax</h1>
+<pre><code>DBManager::connect(
+    dbID: 'database_configuration_id',
+    return: false // Return PDO connection object
+);</code></pre>
+
+<h3>Parameters:</h3>
+<b>string</b> <i>$dbID</i> <b>The ID of the database configuration (defined with <code>DBManager::define()</code>)</b><br>
+<b>bool</b> <i>$return = false</i> <b>Whether to return the PDO connection object</b><br>
+<b>RETURNS</b> <i>bool|PDO</i>
+
+<h1>Usage Examples</h1>
+<h2>Basic Connection:</h2>
+<pre><code>// First define database configuration
+DBManager::define(
+    'localhost',
+    'main_db',
+    'my_database',
+    'db_user',
+    'secure_password',
+    'utf8mb4'
+);
+
+// Then connect
+$connected = DBManager::connect('main_db');
+
+if ($connected) {
+    // Database is ready for operations
+}</code></pre>
+
+<h2>Getting PDO Object:</h2>
+<pre><code>// Get the PDO object directly
+$pdo = DBManager::connect('main_db', true);
+
+if ($pdo) {
+    // Work directly with PDO
+    $stmt = $pdo->prepare('SELECT * FROM users');
+    $stmt->execute();
+}</code></pre>
+
+<h1>Connection Configuration Details</h1>
+<p>DBManager automatically configures connections with these PDO attributes:</p>
+<ul>
+    <li><code>PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION</code></li>
+    <li><code>PDO::ATTR_EMULATE_PREPARES => false</code></li>
+    <li><code>PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC</code></li>
+    <li><code>PDO::ATTR_PERSISTENT => false</code></li>
+    <li><code>PDO::ATTR_AUTOCOMMIT => false</code></li>
+    <li>SSL verification based on global DBManager SSL setting</li>
+</ul>
+
+<h1>Important Notes</h1>
+<ul>
+    <li>You must <code>define()</code> the database configuration before connecting</li>
+    <li>Connection IDs (<code>$dbID</code>) must be unique</li>
+    <li>When <code>$return</code> is true, you get the PDO object directly</li>
+    <li>When <code>$return</code> is false (default), the connection is stored internally</li>
+    <li>All connections are stored and can be reused throughout your application</li>
+    <li>Transactions are disabled by default (autocommit=false)</li>
+</ul>
+
+<h1>Error Handling</h1>
+<p>The method will:</p>
+<ul>
+    <li>Return <code>false</code> if connection fails</li>
+    <li>Log detailed error messages internally</li>
+    <li>Throw PDOExceptions if connection cannot be established</li>
+</ul>
+
+<h1>Typical Workflow</h1>
+<ol>
+    <li>Define database configuration with <code>DBManager::define()</code></li>
+    <li>Establish connection with <code>DBManager::connect()</code></li>
+    <li>Define SQL queries with <code>DBManager::query()</code></li>
+    <li>Create operations with <code>DBManager::newOperation()</code></li>
+    <li>Execute queries and process results</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBManager | Transaction Methods Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .method-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        .note {
+            background-color: #e7f5ff;
+            padding: 1rem;
+            border-left: 4px solid #4dabf7;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background-color: #fff3bf;
+            padding: 1rem;
+            border-left: 4px solid #ffd43b;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager Transaction Methods</h1>
+<p>Comprehensive documentation for transaction management methods</p>
+
+<div class="method-section">
+    <h2>1. transaction()</h2>
+    <p>Executes operations within a database transaction</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::transaction(
+    callable $callback,
+    string $dbID
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>callable</b> <i>$callback</i> - Operation to execute transactionally</li>
+        <li><b>string</b> <i>$dbID</i> - Database connection identifier</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if committed, false if rolled back</p>
+
+    <h3>Example:</h3>
+    <pre><code>DBManager::transaction(
+    function() {
+        // Transactional operations
+        $success = DBManager::execute(101, [':amount' => 100]);
+        return $success && DBManager::execute(102, [':amount' => -100]);
+    },
+    'accounting_db'
+);</code></pre>
+
+    <div class="warning">
+        <h4>Important:</h4>
+        <ul>
+            <li>Callback must return true to commit</li>
+            <li>Any false return or exception triggers rollback</li>
+            <li>Nested transactions are supported</li>
+        </ul>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>2. beingTransaction()</h2>
+    <p>Starts a database transaction with optional isolation level</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::beingTransaction(
+    string $dbID,
+    ?int $isolationLevel = null,
+    bool $developmentMode = false
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$dbID</i> - Database connection identifier</li>
+        <li><b>?int</b> <i>$isolationLevel</i> - Transaction isolation level</li>
+        <li><b>bool</b> <i>$developmentMode</i> - Throw exceptions in dev mode</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if transaction started successfully</p>
+
+    <h3>Example:</h3>
+    <pre><code>DBManager::beingTransaction(
+    'inventory_db',
+    PDO::TRANSACTION_REPEATABLE_READ
+);</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>3. commit()</h2>
+    <p>Commits an active transaction</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::commit(
+    string $dbID
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$dbID</i> - Database connection identifier</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if committed successfully</p>
+
+    <h3>Example:</h3>
+    <pre><code>DBManager::commit('orders_db');</code></pre>
+
+    <div class="note">
+        <h4>Note:</h4>
+        <p>Automatically checks if a transaction is active before committing</p>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>4. rollBack()</h2>
+    <p>Rolls back an active transaction</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::rollBack(
+    string $dbID
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$dbID</i> - Database connection identifier</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if rolled back successfully</p>
+
+    <h3>Example:</h3>
+    <pre><code>try {
+    DBManager::execute(101);
+} catch (Exception $e) {
+    DBManager::rollBack('main_db');
+}</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>5. inTransaction()</h2>
+    <p>Checks if a transaction is currently active</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::inTransaction(
+    string $dbID
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$dbID</i> - Database connection identifier</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if transaction is active</p>
+
+    <h3>Example:</h3>
+    <pre><code>if (DBManager::inTransaction('logging_db')) {
+    // Handle active transaction
+}</code></pre>
+</div>
+
+<h2>Transaction Isolation Levels</h2>
+<ul>
+    <li><code>PDO::TRANSACTION_READ_UNCOMMITTED</code> - Allows dirty reads</li>
+    <li><code>PDO::TRANSACTION_READ_COMMITTED</code> - Prevents dirty reads</li>
+    <li><code>PDO::TRANSACTION_REPEATABLE_READ</code> - Default for MySQL</li>
+    <li><code>PDO::TRANSACTION_SERIALIZABLE</code> - Highest isolation</li>
+</ul>
+
+<h2>Complete Workflow Example</h2>
+<pre><code>// 1. Start transaction with isolation level
+DBManager::beingTransaction('orders_db', PDO::TRANSACTION_REPEATABLE_READ);
+
+try {
+    // 2. Execute operations
+    DBManager::execute(101, [':product' => 'Laptop', ':qty' => -1]);
+    DBManager::execute(102, [':order_id' => 1001]);
+
+    // 3. Commit if successful
+    DBManager::commit('orders_db');
+} catch (Exception $e) {
+    // 4. Rollback on failure
+    DBManager::rollBack('orders_db');
+    throw $e;
+}</code></pre>
+
+<h2>Best Practices</h2>
+<ul>
+    <li>Keep transactions as short as possible</li>
+    <li>Choose appropriate isolation level</li>
+    <li>Always handle potential rollbacks</li>
+    <li>Use the transaction() wrapper for simpler cases</li>
+    <li>Test transaction behavior under concurrent load</li>
+</ul>
+</body>
+</html>

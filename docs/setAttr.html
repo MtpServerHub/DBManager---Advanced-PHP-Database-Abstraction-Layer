@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | setAttr Method Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .method-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        .note {
+            background-color: #e7f5ff;
+            padding: 1rem;
+            border-left: 4px solid #4dabf7;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background-color: #fff3bf;
+            padding: 1rem;
+            border-left: 4px solid #ffd43b;
+            margin: 1rem 0;
+        }
+
+        .attribute-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .attribute-table th, .attribute-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .attribute-table th {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager setAttr Method</h1>
+<p>The <code>setAttr</code> method configures PDO attributes for database connections.</p>
+
+<div class="method-section">
+    <h2>Method Syntax</h2>
+    <pre><code>DBManager::setAttr(
+    dbID: string,
+    attribute: int,
+    value: mixed
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$dbID</i> - Database connection identifier</li>
+        <li><b>int</b> <i>$attribute</i> - PDO attribute constant to set</li>
+        <li><b>mixed</b> <i>$value</i> - Value to assign to the attribute</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True on success, false on failure</p>
+</div>
+
+<h2>Common PDO Attributes</h2>
+<table class="attribute-table">
+    <tr>
+        <th>Attribute</th>
+        <th>Description</th>
+        <th>Common Values</th>
+    </tr>
+    <tr>
+        <td><code>PDO::ATTR_ERRMODE</code></td>
+        <td>Error reporting mode</td>
+        <td>
+            <code>PDO::ERRMODE_SILENT</code><br>
+            <code>PDO::ERRMODE_WARNING</code><br>
+            <code>PDO::ERRMODE_EXCEPTION</code>
+        </td>
+    </tr>
+    <tr>
+        <td><code>PDO::ATTR_DEFAULT_FETCH_MODE</code></td>
+        <td>Default fetch style</td>
+        <td>
+            <code>PDO::FETCH_ASSOC</code><br>
+            <code>PDO::FETCH_OBJ</code><br>
+            <code>PDO::FETCH_BOTH</code>
+        </td>
+    </tr>
+    <tr>
+        <td><code>PDO::ATTR_EMULATE_PREPARES</code></td>
+        <td>Enable/disable prepare emulation</td>
+        <td><code>true</code> or <code>false</code></td>
+    </tr>
+    <tr>
+        <td><code>PDO::ATTR_STRINGIFY_FETCHES</code></td>
+        <td>Convert numeric values to strings</td>
+        <td><code>true</code> or <code>false</code></td>
+    </tr>
+    <tr>
+        <td><code>PDO::ATTR_TIMEOUT</code></td>
+        <td>Connection timeout in seconds</td>
+        <td>Integer value (e.g., 30)</td>
+    </tr>
+</table>
+
+<h2>Usage Examples</h2>
+<div class="method-section">
+    <h3>Basic Usage:</h3>
+    <pre><code>// Set error mode to exceptions
+DBManager::setAttr(
+    'main_db',
+    PDO::ATTR_ERRMODE,
+    PDO::ERRMODE_EXCEPTION
+);
+
+// Set default fetch mode to objects
+DBManager::setAttr(
+    'main_db',
+    PDO::ATTR_DEFAULT_FETCH_MODE,
+    PDO::FETCH_OBJ
+);</code></pre>
+</div>
+
+<div class="method-section">
+    <h3>Complete Setup Example:</h3>
+    <pre><code>// 1. Define and connect to database
+DBManager::define(...);
+DBManager::connect('main_db');
+
+// 2. Configure connection attributes
+DBManager::setAttr('main_db', PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+DBManager::setAttr('main_db', PDO::ATTR_EMULATE_PREPARES, false);
+DBManager::setAttr('main_db', PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+DBManager::setAttr('main_db', PDO::ATTR_STRINGIFY_FETCHES, false);
+
+// 3. Now all operations on 'main_db' will use these settings</code></pre>
+</div>
+
+<div class="warning">
+    <h3>Important Notes:</h3>
+    <ul>
+        <li>Attributes should be set <strong>immediately after connecting</strong></li>
+        <li>Some attributes can't be changed after preparing statements</li>
+        <li>Not all database drivers support all PDO attributes</li>
+        <li>Changes affect all operations on that connection</li>
+    </ul>
+</div>
+
+<h2>Best Practices</h2>
+<ul>
+    <li><b>Error Handling:</b> Always set <code>PDO::ATTR_ERRMODE</code> to <code>PDO::ERRMODE_EXCEPTION</code></li>
+    <li><b>Security:</b> Disable prepare emulation (<code>PDO::ATTR_EMULATE_PREPARES = false</code>)</li>
+    <li><b>Consistency:</b> Set default fetch mode according to your application needs</li>
+    <li><b>Performance:</b> Consider timeout settings for long-running queries</li>
+</ul>
+
+<h2>Error Handling</h2>
+<ul>
+    <li>Returns <code>false</code> if:
+        <ul>
+            <li>Connection ID is invalid</li>
+            <li>Attribute is not supported</li>
+            <li>Value is invalid for the attribute</li>
+        </ul>
+    </li>
+    <li>Errors are logged through DBManager's monitoring system</li>
+    <li>Does not throw exceptions (unless ERRMODE_EXCEPTION is set)</li>
+</ul>
+
+<h2>Database-Specific Attributes</h2>
+<div class="method-section">
+    <h3>MySQL Specific Attributes:</h3>
+    <pre><code>// Enable buffered queries
+DBManager::setAttr(
+    'main_db',
+    PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,
+    true
+);
+
+// Set SSL verification
+DBManager::setAttr(
+    'main_db',
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT,
+    false
+);</code></pre>
+
+    <div class="note">
+        <h4>Note:</h4>
+        <p>Database-specific attributes typically start with the driver name (e.g., <code>MYSQL_ATTR_*</code>).</p>
+    </div>
+</div>
+
+<h2>Common Attribute Combinations</h2>
+<div class="method-section">
+    <h3>Recommended Production Settings:</h3>
+    <pre><code>DBManager::setAttr('main_db', PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+DBManager::setAttr('main_db', PDO::ATTR_EMULATE_PREPARES, false);
+DBManager::setAttr('main_db', PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+DBManager::setAttr('main_db', PDO::ATTR_STRINGIFY_FETCHES, false);
+DBManager::setAttr('main_db', PDO::ATTR_PERSISTENT, false);</code></pre>
+</div>
+
+<div class="method-section">
+    <h3>Debugging Configuration:</h3>
+    <pre><code>DBManager::setAttr('main_db', PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
+DBManager::setAttr('main_db', PDO::ATTR_STATEMENT_CLASS, ['DebugPDOStatement']);</code></pre>
+</div>
+
+<h2>Limitations</h2>
+<ul>
+    <li>Some attributes can only be set at connection time</li>
+    <li>Attribute availability depends on the PDO driver</li>
+    <li>Changes don't affect already prepared statements</li>
+</ul>
+</body>
+</html>

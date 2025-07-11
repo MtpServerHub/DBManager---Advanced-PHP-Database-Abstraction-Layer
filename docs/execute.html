@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | How to execute database operations</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            padding: 1rem;
+            border-left: 4px solid #ffc107;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<h2>How to execute database operations</h2>
+<p>The <code>execute</code> method in DBManager runs a prepared SQL operation with optional parameters or custom binding logic.</p>
+
+<h1>Method Syntax</h1>
+<pre><code>DBManager::execute(
+    operationId: int,
+    value: array|callable = [],
+    data: array = [],
+    commit: bool = true
+): bool</code></pre>
+
+<h3>Parameters:</h3>
+<b>int</b> <i>$operationId</i> <b>The ID of the prepared operation (created with <code>newOperation</code>)</b><br>
+<b>array|callable</b> <i>$value = []</i> <b>Either parameter values or a callback for custom binding</b><br>
+<b>array</b> <i>$data = []</i> <b>Additional data passed to the callback function</b><br>
+<b>bool</b> <i>$commit = true</i> <b>Whether to automatically commit the transaction</b><br>
+<b>RETURNS</b> <i>bool</i> <b>True on success, false on failure</b>
+
+<h1>Usage Examples</h1>
+
+<h2>Basic Execution with Array Parameters</h2>
+<pre><code>// Prepare an operation first
+DBManager::newOperation('main_db', 101, false, 'get_user');
+
+// Execute with bound parameters
+$success = DBManager::execute(101, [':id' => 42]);
+
+if ($success) {
+    // Results are ready for fetching
+    $user = DBManager::fetch(101);
+}</code></pre>
+
+<h2>Using Callback for Advanced Binding</h2>
+<pre><code>DBManager::execute(102, function($params) {
+    // Custom binding logic
+    $stmt = DBManager::options(102);
+    $stmt->bindValue(':min_age', $params['min_age'], PDO::PARAM_INT);
+    $stmt->bindValue(':status', 'active', PDO::PARAM_STR);
+    return true; // Must return true to proceed with execution
+}, ['min_age' => 18]);</code></pre>
+
+<h2>Transaction Control Example</h2>
+<pre><code>// Start transaction
+DBManager::beingTransaction('main_db');
+
+// Execute without auto-commit
+DBManager::execute(103, [':product_id' => 15], [], false);
+
+// Manually commit later
+if ($everythingOk) {
+    DBManager::commit('main_db');
+} else {
+    DBManager::rollBack('main_db');
+}</code></pre>
+
+<h1>Execution Modes</h1>
+
+<h2>1. Simple Array Binding</h2>
+<p>Pass an associative array of parameters:</p>
+<pre><code>[':param1' => value1, ':param2' => value2]</code></pre>
+
+<h2>2. Callback Binding</h2>
+<p>Provide a callable that receives <code>$data</code> and returns boolean:</p>
+<pre><code>function(array $data): bool {
+    // Custom binding logic
+    return true; // Return false to abort execution
+}</code></pre>
+
+<h2>3. No Parameters</h2>
+<p>Execute without binding when no parameters are needed:</p>
+<pre><code>DBManager::execute(104);</code></pre>
+
+<div class="warning">
+    <h3>Important Security Note</h3>
+    <p>Always use parameter binding (either via array or callback) rather than string interpolation to prevent SQL injection.</p>
+</div>
+
+<h1>Transaction Handling</h1>
+<ul>
+    <li>By default (<code>$commit = true</code>), the method will attempt to commit after successful execution</li>
+    <li>When working with transactions, set <code>$commit = false</code> to maintain transaction control</li>
+    <li>The method automatically checks if the connection is in a transaction before committing</li>
+</ul>
+
+<h1>Error Handling</h1>
+<ul>
+    <li>Returns <code>false</code> if execution fails</li>
+    <li>Logs detailed error messages including PDO exceptions</li>
+    <li>Does not throw exceptions by default (controlled by DBManager configuration)</li>
+</ul>
+
+<h1>Typical Workflow</h1>
+<ol>
+    <li>Define database connection (<code>define()</code> + <code>connect()</code>)</li>
+    <li>Register SQL queries (<code>query()</code>)</li>
+    <li>Prepare operations (<code>newOperation()</code>)</li>
+    <li>Execute operations (<code>execute()</code>)</li>
+    <li>Fetch results (<code>fetch()</code> or <code>fetchAll()</code>)</li>
+</ol>
+
+<h1>Best Practices</h1>
+<ul>
+    <li>Use named parameters (<code>:param</code>) rather than question marks</li>
+    <li>For complex operations, use the callback approach</li>
+    <li>When executing in a loop, consider reusing the same operation ID</li>
+    <li>For batch operations, manage transactions explicitly</li>
+    <li>Always check the return value of execute() before fetching results</li>
+</ul>
+</body>
+</html>

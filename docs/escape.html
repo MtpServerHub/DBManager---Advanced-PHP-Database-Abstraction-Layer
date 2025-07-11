@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | Escape Methods Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .method-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        .note {
+            background-color: #e7f5ff;
+            padding: 1rem;
+            border-left: 4px solid #4dabf7;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background-color: #fff3bf;
+            padding: 1rem;
+            border-left: 4px solid #ffd43b;
+            margin: 1rem 0;
+        }
+
+        .usage-example {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-left: 4px solid #adb5bd;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager SQL Escaping Methods</h1>
+<p>These methods provide protection against SQL injection by removing or neutralizing dangerous SQL keywords.</p>
+
+<div class="method-section">
+    <h2>1. escape Method</h2>
+    <p>Removes potentially dangerous SQL keywords from input strings.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::escape(
+    value: string
+): string</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$value</i> - The input string to sanitize</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>string</b> - The sanitized string with SQL keywords removed</p>
+
+    <h3>Example:</h3>
+    <pre><code>$userInput = "DROP TABLE users; SELECT * FROM passwords";
+$safeInput = DBManager::escape($userInput);
+// Result: "TABLE users;  * FROM passwords"</code></pre>
+
+    <div class="note">
+        <h4>Key Characteristics:</h4>
+        <ul>
+            <li>Uses a cached list of SQL keywords for fast processing</li>
+            <li>Performs case-insensitive matching</li>
+            <li>Removes keywords but leaves other content intact</li>
+            <li>More efficient than simple string replacement for large inputs</li>
+        </ul>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>2. buildEscapeCache Method</h2>
+    <p>Generates and compresses a cache of SQL keywords for the escape method.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::buildEscapeCache(): bool</code></pre>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if cache was successfully built, false otherwise</p>
+
+    <h3>Example:</h3>
+    <pre><code>// Build the cache file (typically done during setup)
+$success = DBManager::buildEscapeCache();
+
+if ($success) {
+    // Cache ready for use by escape() method
+}</code></pre>
+
+    <div class="note">
+        <h4>Key Characteristics:</h4>
+        <ul>
+            <li>Creates multiple variants of each SQL keyword (with spaces, parentheses, etc.)</li>
+            <li>Stores cache in a gzip-compressed file for efficiency</li>
+            <li>Should be run during application setup or deployment</li>
+            <li>Cache file location is configurable via MODE::ATTR_ESCAPE_CACHE_FILE</li>
+        </ul>
+    </div>
+</div>
+
+<h2>How the Escape System Works</h2>
+<ol>
+    <li><b>Initialization:</b> <code>buildEscapeCache()</code> creates a compressed cache of SQL keywords</li>
+    <li><b>Storage:</b> Keywords are stored in <code>SQLKeywords.gz</code> at the configured path</li>
+    <li><b>Usage:</b> <code>escape()</code> loads this cache on first use</li>
+    <li><b>Processing:</b> Input strings are scanned for SQL keyword patterns</li>
+    <li><b>Sanitization:</b> Matching patterns are removed from the input</li>
+</ol>
+
+<div class="warning">
+    <h3>Important Security Notes</h3>
+    <ul>
+        <li>This is <strong>not a replacement</strong> for parameterized queries</li>
+        <li>Primary use case is for dynamic table/column names or complex SQL building</li>
+        <li>For user input, always prefer parameter binding (<code>bindValue</code>/<code>bindParameter</code>)</li>
+        <li>The escape method provides an additional layer of protection but has limitations</li>
+    </ul>
+</div>
+
+<h2>Cache File Format</h2>
+<p>The generated cache file contains:</p>
+<ul>
+    <li><b>keywords:</b> Base list of SQL commands (SELECT, INSERT, DROP, etc.)</li>
+    <li><b>patterns:</b> Expanded variants of each keyword with:
+        <ul>
+            <li>Leading/trailing spaces</li>
+            <li>Parentheses</li>
+            <li>Other common SQL syntax patterns</li>
+        </ul>
+    </li>
+</ul>
+
+<h2>Performance Considerations</h2>
+<ul>
+    <li>Cache is loaded once on first use of <code>escape()</code></li>
+    <li>Uses gzip compression for smaller memory footprint</li>
+    <li>Initial scan uses <code>stripos</code> for fast keyword detection</li>
+    <li>Only performs full replacement when keywords are detected</li>
+</ul>
+
+<h2>Best Practices</h2>
+<ul>
+    <li><b>Cache Building:</b> Run <code>buildEscapeCache()</code> during deployment</li>
+    <li><b>File Permissions:</b> Ensure web server can read the cache file</li>
+    <li><b>Selective Use:</b> Only use for cases where parameter binding isn't possible</li>
+    <li><b>Monitoring:</b> Watch for cache-related errors in logs</li>
+</ul>
+
+<h2>Error Handling</h2>
+<ul>
+    <li><code>escape()</code> will:
+        <ul>
+            <li>Return original string if cache cannot be loaded</li>
+            <li>Log cache loading errors</li>
+        </ul>
+    </li>
+    <li><code>buildEscapeCache()</code> will:
+        <ul>
+            <li>Return false if cache directory is not writable</li>
+            <li>Log detailed error messages</li>
+        </ul>
+    </li>
+</ul>
+
+<h2>Example Workflow</h2>
+<div class="usage-example">
+    <pre><code>// During application setup:
+// 1. Build the escape cache
+if (!file_exists($cachePath.'SQLKeywords.gz')) {
+    DBManager::buildEscapeCache();
+}
+
+// During runtime:
+// 2. Use escape for dynamic table names
+$tableName = DBManager::escape($_GET['table']);
+$query = "SELECT * FROM {$tableName} WHERE id = :id";
+
+// 3. Still use parameter binding for values
+DBManager::query('dynamic_query', $query);
+DBManager::newOperation('main_db', 101, false, 'dynamic_query');
+DBManager::bindValue(101, ':id', $_GET['id']);
+DBManager::execute(101);</code></pre>
+</div>
+
+<h2>Limitations</h2>
+<ul>
+    <li>Cannot protect against all possible SQL injection vectors</li>
+    <li>May produce false positives with legitimate text containing SQL-like words</li>
+    <li>Not a substitute for proper input validation</li>
+    <li>Cache must be rebuilt if SQL standards introduce new keywords</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | QueryBuilder Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .method-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        .method-table th, .method-table td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .method-table th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .method-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager QueryBuilder Documentation</h1>
+<p>The <code>QueryBuilder</code> provides a fluent interface for building SQL queries programmatically.</p>
+
+<h2>Getting Started</h2>
+
+<h3>Initialization</h3>
+<pre><code>use DBManager\src\QueryBuilder;
+
+// Start with a table
+$query = QueryBuilder::table('users');</code></pre>
+
+<h2>CRUD Operations</h2>
+
+<h3>SELECT Queries</h3>
+<pre><code>// Basic select
+$query->table('users')
+      ->select(['id', 'name', 'email'])
+      ->where('status', '=', 'active')
+      ->limit(10)
+      ->toSql();
+
+// Select with joins
+$query->table('users')
+      ->select(['users.*', 'orders.total'])
+      ->join('orders', 'users.id', '=', 'orders.user_id');</code></pre>
+
+<h3>INSERT Queries</h3>
+<pre><code>// Single insert
+$query->table('users')
+      ->insert(
+          ['name', 'email', 'status'],
+          ['John Doe', 'john@example.com', 'active']
+      )
+      ->toSql();
+
+// Batch insert
+$query->table('users')
+      ->insertBatch(
+          ['name', 'email'],
+          [
+              ['John', 'john@example.com'],
+              ['Jane', 'jane@example.com']
+          ]
+      );</code></pre>
+
+<h3>UPDATE Queries</h3>
+<pre><code>// Basic update
+$query->table('users')
+      ->update(['status' => 'inactive'])
+      ->where('last_login', '<', '2023-01-01')
+      ->toSql();</code></pre>
+
+<h3>DELETE Queries</h3>
+<pre><code>// Basic delete
+$query->table('users')
+      ->delete()
+      ->where('status', '=', 'banned')
+      ->toSql();</code></pre>
+
+<h2>Query Methods</h2>
+
+<table class="method-table">
+    <tr>
+        <th>Method</th>
+        <th>Description</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td><code>select()</code></td>
+        <td>Specify columns to select</td>
+        <td><code>->select(['id', 'name'])</code></td>
+    </tr>
+    <tr>
+        <td><code>where()</code></td>
+        <td>Add basic WHERE condition</td>
+        <td><code>->where('age', '>', 18)</code></td>
+    </tr>
+    <tr>
+        <td><code>orWhere()</code></td>
+        <td>Add OR WHERE condition</td>
+        <td><code>->orWhere('status', '=', 'active')</code></td>
+    </tr>
+    <tr>
+        <td><code>whereIn()</code></td>
+        <td>Add WHERE IN condition</td>
+        <td><code>->whereIn('id', [1, 2, 3])</code></td>
+    </tr>
+    <tr>
+        <td><code>whereBetween()</code></td>
+        <td>Add WHERE BETWEEN condition</td>
+        <td><code>->whereBetween('age', [18, 30])</code></td>
+    </tr>
+    <tr>
+        <td><code>whereNull()</code></td>
+        <td>Add WHERE IS NULL condition</td>
+        <td><code>->whereNull('deleted_at')</code></td>
+    </tr>
+    <tr>
+        <td><code>groupBy()</code></td>
+        <td>Add GROUP BY clause</td>
+        <td><code>->groupBy('department')</code></td>
+    </tr>
+    <tr>
+        <td><code>orderBy()</code></td>
+        <td>Add ORDER BY clause</td>
+        <td><code>->orderBy('name', 'DESC')</code></td>
+    </tr>
+    <tr>
+        <td><code>limit()</code></td>
+        <td>Add LIMIT clause</td>
+        <td><code>->limit(10)</code></td>
+    </tr>
+    <tr>
+        <td><code>offset()</code></td>
+        <td>Add OFFSET clause</td>
+        <td><code>->offset(20)</code></td>
+    </tr>
+    <tr>
+        <td><code>join()</code></td>
+        <td>Add JOIN clause</td>
+        <td><code>->join('profiles', 'users.id', '=', 'profiles.user_id')</code></td>
+    </tr>
+</table>
+
+<h2>Advanced Usage</h2>
+
+<h3>Nested Conditions</h3>
+<pre><code>// Complex nested conditions
+$query->table('users')
+      ->where(function($q) {
+          $q->where('age', '>', 18)
+            ->orWhere('parent_consent', '=', 1);
+      })
+      ->where('status', '=', 'active');</code></pre>
+
+<h3>Subqueries</h3>
+<pre><code>// Using subqueries
+$query->table('users')
+      ->whereExists(function($q) {
+          $q->table('orders')
+            ->selectRaw(1)
+            ->whereRaw('orders.user_id = users.id');
+      });</code></pre>
+
+<h3>Raw Expressions</h3>
+<pre><code>// Using raw SQL
+$query->table('users')
+      ->selectRaw('COUNT(*) as user_count')
+      ->whereRaw('DATE(created_at) = CURDATE()');</code></pre>
+
+<h2>Executing Queries</h2>
+
+<h3>Getting SQL</h3>
+<pre><code>// Get the SQL string
+$sql = $query->toSql();
+
+// Get SQL with bindings
+$sqlWithBindings = $query->toSql(true);</code></pre>
+
+<h3>Executing</h3>
+<pre><code>// Execute and get results
+$results = $query->get();
+
+// Execute and get first result
+$user = $query->first();</code></pre>
+
+<h2>Best Practices</h2>
+<ul>
+    <li>Always use parameter binding to prevent SQL injection</li>
+    <li>Chain methods fluently for readability</li>
+    <li>Use transactions for multiple related operations</li>
+    <li>Consider adding indexes for frequently queried columns</li>
+</ul>
+
+</body>
+</html>

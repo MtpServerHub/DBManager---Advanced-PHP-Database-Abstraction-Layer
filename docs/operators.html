@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | Operator Methods Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .method-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        .note {
+            background-color: #e7f5ff;
+            padding: 1rem;
+            border-left: 4px solid #4dabf7;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background-color: #fff3bf;
+            padding: 1rem;
+            border-left: 4px solid #ffd43b;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager Operator Methods</h1>
+<p>These utility methods provide validation and checking functionality for DBManager operations.</p>
+
+<div class="method-section">
+    <h2>1. is_database</h2>
+    <p>Checks if a database configuration exists for the given ID.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::is_database(
+    id: string
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$id</i> - Database configuration ID to check</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if configuration exists, false otherwise</p>
+
+    <h3>Example:</h3>
+    <pre><code>if (DBManager::is_database('main_db')) {
+    // Safe to connect to this database
+    DBManager::connect('main_db');
+} else {
+    // Handle missing configuration
+    throw new Exception('Database configuration not found');
+}</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>2. is_connection</h2>
+    <p>Checks if an active connection exists for the given database ID.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::is_connection(
+    id: string
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$id</i> - Database connection ID to check</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if connection exists, false otherwise</p>
+
+    <h3>Example:</h3>
+    <pre><code>if (!DBManager::is_connection('main_db')) {
+    // Establish connection if not exists
+    DBManager::connect('main_db');
+}</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>3. is_operator</h2>
+    <p>Checks if an operation exists for the given operation ID.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::is_operator(
+    id: int
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$id</i> - Operation ID to check</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if operation exists, false otherwise</p>
+
+    <h3>Example:</h3>
+    <pre><code>// Before executing an operation
+if (DBManager::is_operator(101)) {
+    DBManager::execute(101);
+} else {
+    // Handle missing operation
+    throw new Exception('Operation not prepared');
+}</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>4. is_query</h2>
+    <p>Checks if a query is registered for the given query ID.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::is_query(
+    id: string
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$id</i> - Query ID to check</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if query exists, false otherwise</p>
+
+    <h3>Example:</h3>
+    <pre><code>if (!DBManager::is_query('get_user')) {
+    // Register the query if not exists
+    DBManager::query('get_user', 'SELECT * FROM users WHERE id = :id');
+}</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>5. is_safety</h2>
+    <p>Checks if SSL is both configured and active for the current request.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::is_safety(): bool</code></pre>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if SSL is enabled and active, false otherwise</p>
+
+    <h3>Example:</h3>
+    <pre><code>if (!DBManager::is_safety()) {
+    // Handle insecure connection
+    throw new Exception('SSL connection required');
+}</code></pre>
+
+    <div class="note">
+        <h4>Note:</h4>
+        <p>This checks both the DBManager SSL configuration and the actual request protocol.</p>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>6. is_spell_true</h2>
+    <p>Validates that a named parameter exists in a SQL query string.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::is_spell_true(
+    query: string,
+    name: string
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$query</i> - The SQL query string to check</li>
+        <li><b>string</b> <i>$name</i> - The parameter name to look for</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if parameter exists, false otherwise</p>
+
+    <h3>Example:</h3>
+    <pre><code>$query = 'SELECT * FROM users WHERE id = :id AND status = :status';
+if (DBManager::is_spell_true($query, ':status')) {
+    // Safe to bind status parameter
+}</code></pre>
+
+    <div class="warning">
+        <h4>Behavior Modes:</h4>
+        <p>Configured via <code>MODE::ATTR_NAME_ERROR_BINDING</code>:</p>
+        <ul>
+            <li><code>RESPONSE_CONTINUE</code>: Returns false</li>
+            <li><code>RESPONSE_THROW</code>: Throws exception</li>
+            <li><code>RESPONSE_STOP</code>: Logs error and returns false</li>
+        </ul>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>7. tableExists</h2>
+    <p>Checks if a table exists in the specified database.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::tableExists(
+    dbID: string,
+    tableName: string
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>string</b> <i>$dbID</i> - Database connection ID</li>
+        <li><b>string</b> <i>$tableName</i> - Table name to check</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if table exists, false otherwise</p>
+
+    <h3>Example:</h3>
+    <pre><code>if (DBManager::tableExists('main_db', 'users')) {
+    // Safe to operate on users table
+    DBManager::query('get_users', 'SELECT * FROM users');
+} else {
+    // Handle missing table
+    throw new Exception('Users table does not exist');
+}</code></pre>
+
+    <div class="note">
+        <h4>Implementation:</h4>
+        <p>Queries the database's INFORMATION_SCHEMA to check for table existence.</p>
+    </div>
+</div>
+
+<h2>Common Usage Patterns</h2>
+<ul>
+    <li><b>Pre-operation validation:</b> Check operations exist before execution</li>
+    <li><b>Database initialization:</b> Verify tables exist before operations</li>
+    <li><b>Secure connections:</b> Enforce SSL when required</li>
+    <li><b>Parameter safety:</b> Validate parameters before binding</li>
+</ul>
+
+<h2>Error Handling</h2>
+<ul>
+    <li>All methods return boolean values rather than throwing exceptions</li>
+    <li>Errors are logged through DBManager's monitoring system</li>
+    <li><code>is_spell_true</code> behavior is configurable via MODE settings</li>
+</ul>
+
+<h2>Best Practices</h2>
+<ul>
+    <li>Use these checks before attempting operations to prevent errors</li>
+    <li>Combine with try/catch blocks for comprehensive error handling</li>
+    <li>Use <code>tableExists</code> during application initialization</li>
+    <li>Check <code>is_safety</code> before handling sensitive data</li>
+</ul>
+
+<h2>Complete Workflow Example</h2>
+<pre><code>// 1. Check database configuration
+if (!DBManager::is_database('main_db')) {
+    throw new Exception('Database not configured');
+}
+
+// 2. Check/establish connection
+if (!DBManager::is_connection('main_db')) {
+    DBManager::connect('main_db');
+}
+
+// 3. Check table exists
+if (!DBManager::tableExists('main_db', 'users')) {
+    throw new Exception('Required table missing');
+}
+
+// 4. Check query exists
+if (!DBManager::is_query('get_user')) {
+    DBManager::query('get_user', 'SELECT * FROM users WHERE id = :id');
+}
+
+// 5. Create operation if needed
+if (!DBManager::is_operator(101)) {
+    DBManager::newOperation('main_db', 101, false, 'get_user');
+}
+
+// 6. Verify parameter name
+if (DBManager::is_spell_true(DBManager::getQuery(101), ':id')) {
+    DBManager::bindValue(101, ':id', $userId);
+    DBManager::execute(101);
+}</code></pre>
+</body>
+</html>

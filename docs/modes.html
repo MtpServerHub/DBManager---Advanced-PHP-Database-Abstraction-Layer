@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | MODE Enum Reference</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .enum-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        .enum-table th, .enum-table td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .enum-table th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .enum-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager MODE Enum Reference</h1>
+<p>The <code>MODE</code> enum defines configuration constants for controlling DBManager behavior.</p>
+
+<h2>Enum Overview</h2>
+<p>This enum contains two types of constants:</p>
+<ul>
+    <li><b>Mode Types</b> - Define what aspect of behavior to configure</li>
+    <li><b>Responses</b> - Define how the system should respond in different situations</li>
+</ul>
+
+<h2>Mode Types</h2>
+<p>These constants are used with <code>DBManager::mode()</code> to configure different aspects:</p>
+
+<table class="enum-table">
+    <tr>
+        <th>Constant</th>
+        <th>Value</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>ATTR_NAME_ERROR_BINDING</code></td>
+        <td>100</td>
+        <td>Controls behavior when parameter binding errors occur</td>
+    </tr>
+    <tr>
+        <td><code>ATTR_LOG_MONITORING</code></td>
+        <td>101</td>
+        <td>Configures logging behavior for the system</td>
+    </tr>
+    <tr>
+        <td><code>ATTR_LOG_FILE_PATH</code></td>
+        <td>103</td>
+        <td>Specifies the directory path for log files</td>
+    </tr>
+    <tr>
+        <td><code>ATTR_ESCAPE_CACHE_FILE</code></td>
+        <td>104</td>
+        <td>Specifies the directory path for SQL keywords cache</td>
+    </tr>
+</table>
+
+<h2>Response Values</h2>
+<p>These constants define possible responses for each mode type:</p>
+
+<h3>For ATTR_NAME_ERROR_BINDING (100)</h3>
+<table class="enum-table">
+    <tr>
+        <th>Constant</th>
+        <th>Value</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>RESPONSE_STOP</code></td>
+        <td>200</td>
+        <td>Stop execution and log error when binding fails</td>
+    </tr>
+    <tr>
+        <td><code>RESPONSE_CONTINUE</code></td>
+        <td>201</td>
+        <td>Continue execution silently when binding fails</td>
+    </tr>
+    <tr>
+        <td><code>RESPONSE_THROW</code></td>
+        <td>202</td>
+        <td>Throw exception when binding fails</td>
+    </tr>
+</table>
+
+<h3>For ATTR_LOG_MONITORING (101)</h3>
+<table class="enum-table">
+    <tr>
+        <th>Constant</th>
+        <th>Value</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>RESPONSE_LOG</code></td>
+        <td>203</td>
+        <td>Log messages normally to internal log</td>
+    </tr>
+    <tr>
+        <td><code>RESPONSE_LOG_SILENT</code></td>
+        <td>204</td>
+        <td>Suppress all logging</td>
+    </tr>
+    <tr>
+        <td><code>RESPONSE_LOG_FILE</code></td>
+        <td>205</td>
+        <td>Write logs to file (requires ATTR_LOG_FILE_PATH)</td>
+    </tr>
+</table>
+
+<h2>Usage Examples</h2>
+<h3>Setting Error Binding Behavior</h3>
+<pre><code>// Stop execution on binding errors
+DBManager::mode(MODE::ATTR_NAME_ERROR_BINDING, MODE::RESPONSE_STOP);
+
+// Or throw exceptions
+DBManager::mode(MODE::ATTR_NAME_ERROR_BINDING, MODE::RESPONSE_THROW);</code></pre>
+
+<h3>Configuring Logging</h3>
+<pre><code>// Log to internal memory
+DBManager::mode(MODE::ATTR_LOG_MONITORING, MODE::RESPONSE_LOG);
+
+// Log to file (must set path first)
+DBManager::mode(MODE::ATTR_LOG_FILE_PATH, '/path/to/logs/');
+DBManager::mode(MODE::ATTR_LOG_MONITORING, MODE::RESPONSE_LOG_FILE);</code></pre>
+
+<h2>Important Notes</h2>
+<ul>
+    <li>Modes must be set before they take effect</li>
+    <li>Some response types require additional configuration (like file paths)</li>
+    <li>Default modes are set in <code>DBManager::prepare()</code></li>
+    <li>Mode settings persist for the entire application lifecycle</li>
+</ul>
+
+</body>
+</html>

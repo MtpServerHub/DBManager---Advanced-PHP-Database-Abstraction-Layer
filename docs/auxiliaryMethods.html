@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | Options Methods Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .method-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        .note {
+            background-color: #e7f5ff;
+            padding: 1rem;
+            border-left: 4px solid #4dabf7;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background-color: #fff3bf;
+            padding: 1rem;
+            border-left: 4px solid #ffd43b;
+            margin: 1rem 0;
+        }
+
+        .usage-example {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-left: 4px solid #adb5bd;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager Options Methods</h1>
+<p>These methods provide access to PDOStatement properties and metadata for database operations.</p>
+
+<div class="method-section">
+    <h2>1. options (Internal)</h2>
+    <p>Internal method to retrieve the PDOStatement object for a given operation.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::options(
+    operationId: int
+): false|PDOStatement</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>false|PDOStatement</b> - PDOStatement if found, false otherwise</p>
+
+    <div class="note">
+        <h4>Note:</h4>
+        <p>This is an internal method used by other DBManager methods. Most applications won't need to call it directly.</p>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>2. getQuery</h2>
+    <p>Retrieves the SQL query string from a prepared operation.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::getQuery(
+    operationId: int
+): false|string</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>false|string</b> - The SQL string or false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>DBManager::newOperation('main_db', 101, false, 'get_user');
+$query = DBManager::getQuery(101);
+// Returns: "SELECT * FROM users WHERE id = :id"</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>3. columnCount</h2>
+    <p>Gets the number of columns in the result set.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::columnCount(
+    operationId: int
+): false|int</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>false|int</b> - Number of columns or false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>DBManager::execute(101, [':id' => 42]);
+$columnCount = DBManager::columnCount(101);
+// Returns number of columns in result</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>4. getColumnMeta</h2>
+    <p>Returns metadata for a column in the result set.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::getColumnMeta(
+    operationId: int,
+    column: int
+): mixed</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+        <li><b>int</b> <i>$column</i> - 0-based column index</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>mixed</b> - Column metadata array or false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>$meta = DBManager::getColumnMeta(101, 0);
+/*
+Returns array like:
+[
+    'native_type' => 'LONG',
+    'flags' => ['not_null', 'primary_key'],
+    'name' => 'id',
+    'table' => 'users',
+    'len' => 11
+]
+*/</code></pre>
+
+    <div class="warning">
+        <h4>Note:</h4>
+        <p>Column metadata availability depends on the database driver.</p>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>5. closeCursor</h2>
+    <p>Closes the cursor, enabling the statement to be executed again.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::closeCursor(
+    operationId: int
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True on success, false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>// After fetching all rows
+DBManager::closeCursor(101);
+// Statement can now be re-executed</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>6. resetCursor</h2>
+    <p>Re-executes the statement to reset the cursor position.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::resetCursor(
+    operationId: int
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True on success, false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>// Reset to fetch rows from beginning again
+DBManager::resetCursor(101);</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>7. attrISexists</h2>
+    <p>Checks if a PDO attribute exists for the operation.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::attrISexists(
+    operationId: int,
+    attribute: int
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+        <li><b>int</b> <i>$attribute</i> - PDO attribute constant</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True if attribute exists, false otherwise</p>
+
+    <h3>Example:</h3>
+    <pre><code>$hasErrmode = DBManager::attrISexists(101, PDO::ATTR_ERRMODE);</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>8. getAttribute</h2>
+    <p>Gets the value of a PDO attribute.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::getAttribute(
+    operationId: int,
+    attribute: int
+): mixed</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+        <li><b>int</b> <i>$attribute</i> - PDO attribute constant</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>mixed</b> - Attribute value or false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>$errmode = DBManager::getAttribute(101, PDO::ATTR_ERRMODE);</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>9. fetchColumn</h2>
+    <p>Fetches a single column from the next row.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::fetchColumn(
+    operationId: int,
+    column: int = 0
+): mixed</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+        <li><b>int</b> <i>$column</i> - 0-based column index (default: 0)</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>mixed</b> - Column value or false if no more rows</p>
+
+    <h3>Example:</h3>
+    <pre><code>// Get just the usernames
+while ($username = DBManager::fetchColumn(101, 1)) {
+    echo $username . "\n";
+}</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>10. debugDumpParams</h2>
+    <p>Dumps the prepared statement information.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::debugDumpParams(
+    operationId: int
+): void</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+    </ul>
+
+    <h3>Example:</h3>
+    <pre><code>DBManager::debugDumpParams(101);
+/*
+Outputs:
+SQL: [34] SELECT * FROM users WHERE id = :id
+Params: 1
+Key: :id
+paramno=-1
+name=[6] ":id"
+is_param=1
+param_type=2
+*/
+</code></pre>
+
+    <div class="note">
+        <h4>Note:</h4>
+        <p>This method directly outputs debug information for troubleshooting.</p>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>11. getErrorInfo</h2>
+    <p>Gets extended error information for the operation.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::getErrorInfo(
+    operationId: int
+): array|false</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>array|false</b> - Error info array or false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>$error = DBManager::getErrorInfo(101);
+/*
+Returns array like:
+[
+    0 => '00000',
+    1 => null,
+    2 => null
+]
+*/</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>12. getErrorCode</h2>
+    <p>Gets the SQLSTATE error code for the operation.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::getErrorCode(
+    operationId: int
+): string|false|null</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>string|false|null</b> - SQLSTATE code or false/null on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>$errorCode = DBManager::getErrorCode(101);
+// Returns SQLSTATE like '42S02' for table not found</code></pre>
+</div>
+
+<div class="method-section">
+    <h2>13. rowCount</h2>
+    <p>Gets the number of affected rows by the last SQL statement.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::rowCount(
+    operationId: int
+): false|int</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - ID of the operation</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>false|int</b> - Number of affected rows or false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>DBManager::execute(101, [':status' => 'inactive']);
+$affected = DBManager::rowCount(101);
+// Returns number of rows updated/deleted</code></pre>
+
+    <div class="warning">
+        <h4>Note:</h4>
+        <p>For SELECT statements, behavior is database-dependent and often returns 0.</p>
+    </div>
+</div>
+
+<h2>Common Use Cases</h2>
+<ul>
+    <li><b>Debugging:</b> Use <code>debugDumpParams</code> and error methods</li>
+    <li><b>Result analysis:</b> Check column count and metadata</li>
+    <li><b>Batch processing:</b> Use <code>fetchColumn</code> for specific values</li>
+    <li><b>Transaction control:</b> Check affected rows with <code>rowCount</code></li>
+</ul>
+
+<h2>Best Practices</h2>
+<ul>
+    <li>Check error codes after critical operations</li>
+    <li>Use column metadata for dynamic result processing</li>
+    <li>Close cursors when done with result sets</li>
+    <li>Use rowCount only with INSERT/UPDATE/DELETE statements</li>
+</ul>
+
+<h2>Complete Workflow Example</h2>
+<pre><code>// 1. Prepare and execute operation
+DBManager::newOperation('main_db', 101, false, 'update_users');
+DBManager::bindValue(101, ':status', 'active');
+DBManager::execute(101);
+
+// 2. Check results
+if (DBManager::rowCount(101) > 0) {
+    echo "Updated " . DBManager::rowCount(101) . " rows";
+} else {
+    $error = DBManager::getErrorInfo(101);
+    // Handle error
+}
+
+// 3. Debug if needed
+DBManager::debugDumpParams(101);</code></pre>
+</body>
+</html>

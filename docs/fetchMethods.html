@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | Fetch Methods Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .method-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        .note {
+            background-color: #e7f5ff;
+            padding: 1rem;
+            border-left: 4px solid #4dabf7;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background-color: #fff3bf;
+            padding: 1rem;
+            border-left: 4px solid #ffd43b;
+            margin: 1rem 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager Fetch Methods</h1>
+<p>These methods retrieve data from executed database operations.</p>
+
+<div class="method-section">
+    <h2>1. fetch Method</h2>
+    <p>Fetches the next row from a result set.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::fetch(
+    operationId: int,
+    type: int = PDO::FETCH_ASSOC,
+    ...$args: mixed
+): mixed</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - The operation ID from <code>execute()</code></li>
+        <li><b>int</b> <i>$type = PDO::FETCH_ASSOC</i> - Fetch style constant</li>
+        <li><b>mixed</b> <i>...$args</i> - Additional arguments for the fetch</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>mixed</b> - The fetched row or false if no more rows</p>
+
+    <h3>Example:</h3>
+    <pre><code>// Execute operation first
+DBManager::execute(101, [':id' => 42]);
+
+// Fetch rows one by one
+while ($row = DBManager::fetch(101)) {
+    // Process each row (default: associative array)
+    echo $row['username'];
+}
+
+// Fetch with different style
+$row = DBManager::fetch(101, PDO::FETCH_OBJ);</code></pre>
+
+    <div class="note">
+        <h4>Supported Fetch Types:</h4>
+        <ul>
+            <li><code>PDO::FETCH_ASSOC</code> - Associative array (default)</li>
+            <li><code>PDO::FETCH_NUM</code> - Numeric array</li>
+            <li><code>PDO::FETCH_BOTH</code> - Both associative and numeric</li>
+            <li><code>PDO::FETCH_OBJ</code> - Standard object</li>
+            <li>Other PDO fetch styles</li>
+        </ul>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>2. fetchAll Method</h2>
+    <p>Fetches all rows from a result set at once.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::fetchAll(
+    operationId: int,
+    type: int = PDO::FETCH_ASSOC,
+    ...$args: mixed
+): mixed</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - The operation ID from <code>execute()</code></li>
+        <li><b>int</b> <i>$type = PDO::FETCH_ASSOC</i> - Fetch style constant</li>
+        <li><b>mixed</b> <i>...$args</i> - Additional arguments for the fetch</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>mixed</b> - Array of all rows or false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>// Execute operation
+DBManager::execute(102, [':status' => 'active']);
+
+// Get all results at once
+$users = DBManager::fetchAll(102);
+
+// Process results
+foreach ($users as $user) {
+    echo $user['email'] . "\n";
+}
+
+// Fetch as objects
+$products = DBManager::fetchAll(103, PDO::FETCH_OBJ);</code></pre>
+
+    <div class="note">
+        <h4>Special Fetch Modes:</h4>
+        <ul>
+            <li><code>PDO::FETCH_COLUMN</code> - Fetch single column</li>
+            <li><code>PDO::FETCH_UNIQUE</code> - First column as array keys</li>
+            <li><code>PDO::FETCH_GROUP</code> - Group rows by first column</li>
+            <li><code>PDO::FETCH_KEY_PAIR</code> - First two columns as key-value pairs</li>
+        </ul>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>3. fetchObject Method</h2>
+    <p>Fetches the next row as an instance of the specified class.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::fetchObject(
+    operationId: int,
+    className: string|null = 'stdClass',
+    constructorArgs: array = []
+): object|false</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - The operation ID from <code>execute()</code></li>
+        <li><b>string|null</b> <i>$className = 'stdClass'</i> - Class name to instantiate</li>
+        <li><b>array</b> <i>$constructorArgs = []</i> - Arguments for class constructor</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>object|false</b> - Instance of specified class or false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>class User {
+    public function __construct(public $id, public $name) {}
+}
+
+// Execute operation
+DBManager::execute(104, [':group' => 'admin']);
+
+// Fetch as User objects
+while ($user = DBManager::fetchObject(104, User::class)) {
+    echo $user->name . " (ID: {$user->id})\n";
+}
+
+// With constructor arguments
+$product = DBManager::fetchObject(105, Product::class, [$dependency]);</code></pre>
+
+    <div class="note">
+        <h4>Class Mapping:</h4>
+        <ul>
+            <li>Properties are mapped case-insensitively</li>
+            <li>Constructor is called before property assignment</li>
+            <li>Returns stdClass if no class name specified</li>
+        </ul>
+    </div>
+</div>
+
+<h2>Method Comparison</h2>
+<table class="comparison-table">
+    <tr>
+        <th>Feature</th>
+        <th>fetch</th>
+        <th>fetchAll</th>
+        <th>fetchObject</th>
+    </tr>
+    <tr>
+        <td>Return Type</td>
+        <td>Single row</td>
+        <td>All rows</td>
+        <td>Single object</td>
+    </tr>
+    <tr>
+        <td>Memory Usage</td>
+        <td>Low</td>
+        <td>High (for large results)</td>
+        <td>Low</td>
+    </tr>
+    <tr>
+        <td>Typical Use Case</td>
+        <td>Large result sets</td>
+        <td>Small result sets</td>
+        <td>Object mapping</td>
+    </tr>
+    <tr>
+        <td>Performance</td>
+        <td>Good for iteration</td>
+        <td>Good for small data</td>
+        <td>Good for OOP</td>
+    </tr>
+</table>
+
+<h2>Common Fetch Types</h2>
+<ul>
+    <li><code>PDO::FETCH_ASSOC</code> - Associative array (column => value)</li>
+    <li><code>PDO::FETCH_NUM</code> - Numeric array (0-indexed columns)</li>
+    <li><code>PDO::FETCH_BOTH</code> - Both associative and numeric</li>
+    <li><code>PDO::FETCH_OBJ</code> - Standard PHP object</li>
+    <li><code>PDO::FETCH_CLASS</code> - Custom class instance</li>
+    <li><code>PDO::FETCH_COLUMN</code> - Single column values</li>
+</ul>
+
+<div class="warning">
+    <h3>Important Notes</h3>
+    <ul>
+        <li>Always call <code>execute()</code> before fetching</li>
+        <li>Check return values for false (no more rows or error)</li>
+        <li>For large datasets, prefer <code>fetch()</code> over <code>fetchAll()</code></li>
+        <li>Column names are case-sensitive in associative arrays</li>
+    </ul>
+</div>
+
+<h2>Best Practices</h2>
+<ul>
+    <li>Use <code>fetch()</code> for memory-efficient processing of large results</li>
+    <li>Use <code>fetchAll()</code> when you need all data at once</li>
+    <li>Use <code>fetchObject()</code> for object-oriented data handling</li>
+    <li>Specify the fetch type explicitly for clarity</li>
+    <li>Handle empty result sets gracefully</li>
+</ul>
+
+<h2>Error Handling</h2>
+<ul>
+    <li>All methods return <code>false</code> on:
+        <ul>
+            <li>Invalid operation ID</li>
+            <li>Execution failure</li>
+            <li>No more rows (for <code>fetch()</code> and <code>fetchObject()</code>)</li>
+        </ul>
+    </li>
+    <li>Errors are logged through DBManager's monitoring system</li>
+</ul>
+
+<h2>Complete Workflow Example</h2>
+<pre><code>// 1. Define and connect to database
+DBManager::define(...);
+DBManager::connect('main_db');
+
+// 2. Register and prepare query
+DBManager::query('get_users', 'SELECT * FROM users WHERE status = :status');
+DBManager::newOperation('main_db', 201, false, 'get_users');
+
+// 3. Bind and execute
+DBManager::bindValue(201, ':status', 'active');
+DBManager::execute(201);
+
+// 4. Fetch results
+// Option 1: fetch() in loop
+while ($user = DBManager::fetch(201, PDO::FETCH_ASSOC)) {
+    processUser($user);
+}
+
+// Option 2: fetchAll()
+$allUsers = DBManager::fetchAll(201);
+processUsers($allUsers);
+
+// Option 3: fetchObject()
+class UserDTO {
+    public function __construct(public $id, public $name) {}
+}
+DBManager::execute(201, [':status' => 'active']);
+while ($user = DBManager::fetchObject(201, UserDTO::class)) {
+    echo $user->name;
+}</code></pre>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | Parameter Binding Methods</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+
+        .method-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: #e9ecef;
+        }
+
+        .note {
+            background-color: #e7f5ff;
+            padding: 1rem;
+            border-left: 4px solid #4dabf7;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background-color: #fff3bf;
+            padding: 1rem;
+            border-left: 4px solid #ffd43b;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>DBManager Parameter Binding Methods</h1>
+<p>These methods provide secure ways to bind values to prepared statements in DBManager.</p>
+
+<div class="method-section">
+    <h2>1. bindValue Method</h2>
+    <p>Binds a value to a parameter in the SQL statement.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::bindValue(
+    operationId: int,
+    name: string,
+    value: mixed
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - The operation ID from <code>newOperation()</code></li>
+        <li><b>string</b> <i>$name</i> - The parameter name (e.g. ":username")</li>
+        <li><b>mixed</b> <i>$value</i> - The value to bind to the parameter</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True on success, false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>// Prepare operation first
+DBManager::newOperation('main_db', 101, false, 'get_user');
+
+// Bind values
+DBManager::bindValue(101, ':user_id', 42);
+DBManager::bindValue(101, ':status', 'active');
+
+// Execute
+DBManager::execute(101);</code></pre>
+
+    <div class="note">
+        <h4>Key Characteristics:</h4>
+        <ul>
+            <li>Binds the value <strong>at the time of calling</strong></li>
+            <li>Value is not affected by later changes</li>
+            <li>Automatically adds colon (:) if missing from parameter name</li>
+            <li>Verifies the parameter exists in the query</li>
+        </ul>
+    </div>
+</div>
+
+<div class="method-section">
+    <h2>2. bindParameter Method</h2>
+    <p>Binds a parameter to a variable reference.</p>
+
+    <h3>Syntax:</h3>
+    <pre><code>DBManager::bindParameter(
+    operationId: int,
+    name: string,
+    value: mixed
+): bool</code></pre>
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><b>int</b> <i>$operationId</i> - The operation ID from <code>newOperation()</code></li>
+        <li><b>string</b> <i>$name</i> - The parameter name (e.g. ":username")</li>
+        <li><b>mixed</b> <i>&$value</i> - The variable to bind (passed by reference)</li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <p><b>bool</b> - True on success, false on failure</p>
+
+    <h3>Example:</h3>
+    <pre><code>// Prepare operation
+DBManager::newOperation('main_db', 102, false, 'update_profile');
+
+// Variables that may change
+$userId = 42;
+$status = 'active';
+
+// Bind parameters by reference
+DBManager::bindParameter(102, ':user_id', $userId);
+DBManager::bindParameter(102, ':status', $status);
+
+// Later changes will affect the executed query
+$status = 'inactive';
+DBManager::execute(102); // Will use 'inactive' value</code></pre>
+
+    <div class="note">
+        <h4>Key Characteristics:</h4>
+        <ul>
+            <li>Binds to a <strong>variable reference</strong></li>
+            <li>Value is evaluated <strong>at execution time</strong></li>
+            <li>Useful when values may change before execution</li>
+            <li>Same automatic colon (:) and parameter verification as bindValue</li>
+        </ul>
+    </div>
+</div>
+
+<h2>Comparison Table</h2>
+<table class="comparison-table">
+    <tr>
+        <th>Feature</th>
+        <th>bindValue</th>
+        <th>bindParameter</th>
+    </tr>
+    <tr>
+        <td>Binding Time</td>
+        <td>At call time</td>
+        <td>At execution time</td>
+    </tr>
+    <tr>
+        <td>Value Changes</td>
+        <td>Unaffected by later changes</td>
+        <td>Reflects variable changes</td>
+    </tr>
+    <tr>
+        <td>Use Case</td>
+        <td>Static values</td>
+        <td>Dynamic values</td>
+    </tr>
+    <tr>
+        <td>Performance</td>
+        <td>Slightly faster</td>
+        <td>Slightly slower</td>
+    </tr>
+    <tr>
+        <td>Memory Usage</td>
+        <td>Stores value</td>
+        <td>Stores reference</td>
+    </tr>
+</table>
+
+<h2>Common Features</h2>
+<ul>
+    <li>Both methods automatically add a colon prefix if missing (e.g. converts "id" to ":id")</li>
+    <li>Both verify the parameter exists in the SQL query before binding</li>
+    <li>Both return boolean indicating success/failure</li>
+    <li>Both log binding operations through DBManager's monitoring system</li>
+</ul>
+
+<div class="warning">
+    <h3>Security Best Practices</h3>
+    <ul>
+        <li>Always use these binding methods instead of string concatenation</li>
+        <li>Validate values before binding when they come from user input</li>
+        <li>Use <code>bindValue</code> for values that shouldn't change after binding</li>
+        <li>Prefer <code>bindValue</code> unless you specifically need late evaluation</li>
+    </ul>
+</div>
+
+<h2>Error Handling</h2>
+<p>Both methods will:</p>
+<ul>
+    <li>Return <code>false</code> if:
+        <ul>
+            <li>Operation ID doesn't exist</li>
+            <li>Parameter name doesn't exist in the query</li>
+            <li>Binding fails</li>
+        </ul>
+    </li>
+    <li>Log detailed error messages including:
+        <ul>
+            <li>Missing operation IDs</li>
+            <li>Parameter name mismatches</li>
+            <li>PDO binding errors</li>
+        </ul>
+    </li>
+</ul>
+
+<h2>Workflow Integration</h2>
+<ol>
+    <li>Create database connection (<code>define()</code> + <code>connect()</code>)</li>
+    <li>Register SQL queries (<code>query()</code>)</li>
+    <li>Prepare operations (<code>newOperation()</code>)</li>
+    <li>Bind parameters (<code>bindValue()</code>/<code>bindParameter()</code>)</li>
+    <li>Execute (<code>execute()</code>)</li>
+    <li>Fetch results (<code>fetch()</code>/<code>fetchAll()</code>)</li>
+</ol>
+</body>
+</html>

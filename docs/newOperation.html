@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>DBManager | How to create new operations</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+            direction: ltr;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            color: #2c3e50;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.5;
+        }
+
+        code {
+            font-size: 0.95rem;
+        }
+
+        p, li, b, i {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        ul {
+            margin-bottom: 2rem;
+            padding-left: 1.5rem;
+        }
+
+        h2, h3, h4 {
+            color: #34495e;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<h2>How to create new database operations</h2>
+<p>The <code>newOperation</code> method in DBManager allows you to prepare SQL statements for later execution, binding parameters, and fetching results.</p>
+
+<h1>Method Syntax</h1>
+<pre><code>DBManager::newOperation(
+    dbID: 'database_connection_id',
+    operationId: unique_operation_number,
+    return: false, // Return PDOStatement object
+    queryId: 'default' // ID of predefined query
+);</code></pre>
+
+<h3>Parameters:</h3>
+<b>string</b> <i>$dbID</i> <b>The ID of the connected database where the operation should be prepared</b><br>
+<b>int</b> <i>$operationId</i> <b>A unique numeric identifier for this operation</b><br>
+<b>bool</b> <i>$return = false</i> <b>Whether to return the PDOStatement object</b><br>
+<b>string</b> <i>$queryId = 'default'</i> <b>The ID of a previously defined SQL query</b><br>
+<b>RETURNS</b> <i>bool|PDOStatement</i>
+
+<h1>Usage Example</h1>
+<h2>Basic Usage:</h2>
+<pre><code>// First define a query
+DBManager::query('get_user', 'SELECT * FROM users WHERE id = :id');
+
+// Then create a new operation
+$success = DBManager::newOperation('main_db', 101, false, 'get_user');
+
+if ($success) {
+    // Operation is ready for parameter binding and execution
+}</code></pre>
+
+<h2>Getting PDOStatement Object:</h2>
+<pre><code>$stmt = DBManager::newOperation('main_db', 102, true, 'get_user');
+
+if ($stmt) {
+    // Work directly with the PDOStatement object
+    $stmt->bindValue(':id', 5);
+    $stmt->execute();
+}</code></pre>
+
+<h1>Important Notes</h1>
+<ul>
+    <li>The database connection (<code>$dbID</code>) must be established before creating operations</li>
+    <li>The query (<code>$queryId</code>) must be predefined using <code>DBManager::query()</code></li>
+    <li>Operation IDs (<code>$operationId</code>) must be unique across your application</li>
+    <li>When <code>$return</code> is true, you get the PDOStatement object directly</li>
+    <li>When <code>$return</code> is false (default), the operation is stored internally for later use</li>
+</ul>
+
+<h1>Workflow</h1>
+<ol>
+    <li>Define your database connection with <code>DBManager::define()</code></li>
+    <li>Connect to the database with <code>DBManager::connect()</code></li>
+    <li>Define your SQL queries with <code>DBManager::query()</code></li>
+    <li>Create operations with <code>DBManager::newOperation()</code></li>
+    <li>Bind parameters and execute when needed</li>
+</ol>
+</body>
+</html>
