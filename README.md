@@ -116,8 +116,4 @@ Open them directly in a browser for easy reading.
 
 ## 📝 License
 
-<<<<<<< HEAD
 This project is licensed under the [MIT License](LICENSE).
-=======
-This project is licensed under the [MIT License](LICENSE).
->>>>>>> 5c0034f (Initial commit: Add DBManager core files and documentions)
